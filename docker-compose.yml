@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: todolist_mysql
+    environment:
+      MYSQL_DATABASE: todolist
+      MYSQL_USER: todouser
+      MYSQL_PASSWORD: todopass
+      MYSQL_ROOT_PASSWORD: rootpass
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - todolist_network
+    restart: unless-stopped
+
+  web:
+    build: .
+    container_name: todolist_app
+    environment:
+      - DB_HOST=db
+      - DB_NAME=todolist
+      - DB_USER=todouser
+      - DB_PASSWORD=todopass
+      - DB_PORT=3306
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    networks:
+      - todolist_network
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+
+networks:
+  todolist_network:
+    driver: bridge
